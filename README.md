@@ -3,7 +3,7 @@
 
 [![NPM Version](https://badge.fury.io/js/emitter-pubsub-broker.svg)](https://badge.fury.io/js/emitter-pubsub-broker)
 [![Build Status](https://travis-ci.org/an-sh/emitter-pubsub-broker.svg?branch=master)](https://travis-ci.org/an-sh/emitter-pubsub-broker)
-[![Appveyor status](https://ci.appveyor.com/api/projects/status/y1hrrpumx5erpa6e?svg=true)](https://ci.appveyor.com/api/projects/status/y1hrrpumx5erpa6e?svg=true)
+[![Appveyor status](https://ci.appveyor.com/api/projects/status/y1hrrpumx5erpa6e?svg=true)](https://ci.appveyor.com/project/an-sh/emitter-pubsub-broker)
 [![Coverage Status](https://codecov.io/gh/an-sh/emitter-pubsub-broker/branch/master/graph/badge.svg)](https://codecov.io/gh/an-sh/emitter-pubsub-broker)
 [![Dependency Status](https://david-dm.org/an-sh/emitter-pubsub-broker.svg)](https://david-dm.org/an-sh/emitter-pubsub-broker)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
