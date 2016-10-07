@@ -8,7 +8,9 @@
 [![Dependency Status](https://david-dm.org/an-sh/emitter-pubsub-broker.svg)](https://david-dm.org/an-sh/emitter-pubsub-broker)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
-An utility for connecting EventEmitters via a pubsub.
+An utility for connecting EventEmitters via a pubsub. Includes Redis
+and in-memory backends, and a support of other systems can be added by
+implementing a very simple Connector wrapper.
 
 
 ## Table of Contents
@@ -22,10 +24,6 @@ An utility for connecting EventEmitters via a pubsub.
 
 ## Installation
 
-This project is a [node](http://nodejs.org) module available via
-[npm](https://npmjs.com). Go check them out if you don't have them
-locally installed.
-
 ```sh
 $ npm i emitter-pubsub-broker
 ```
@@ -34,9 +32,10 @@ $ npm i emitter-pubsub-broker
 
 ```javascript
 const EmitterPubsubBroker = require('emitter-pubsub-broker')
+const connect = 'redis://localhost:6379' // or empty for in-memory backend
 
-let broker = new EmitterPubsubBroker(options)
-let client = new EventEmitter() // anything that implements interface
+let broker = new EmitterPubsubBroker(connect)
+let client = new EventEmitter() // anything that implements the interface
 
 client.on('myEvent', (...args) => { /* handler code */ })
 
