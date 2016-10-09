@@ -17,7 +17,7 @@ function notReachable (error) {
 
 afterEach(function () {
   if (broker) {
-    return broker.close()
+    return broker.close().catchReturn()
   }
 })
 
