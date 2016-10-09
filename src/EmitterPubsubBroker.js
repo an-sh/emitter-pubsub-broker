@@ -3,12 +3,13 @@
 const Promise = require('bluebird')
 const Redis = require('ioredis')
 const msgpack = require('msgpack-lite')
-const { EventEmitter } = require('events')
+const { EventEmitter } = require('eventemitter3')
 
 /**
  * Interface for connector implementations.
  *
  * @interface Connector
+ * @extends EventEmitter
  */
 
 /**
@@ -54,6 +55,14 @@ const { EventEmitter } = require('events')
  * @param {Buffer} data Event data.
  */
 
+/**
+ * Event will be listened by {@link EmitterPubsubBroker} instance.
+ *
+ * @event error
+ * @memberOf Connector
+ * @param {Error} error Error.
+ */
+
 class RedisConnector extends EventEmitter {
   constructor (options) {
     super()
@@ -61,6 +70,8 @@ class RedisConnector extends EventEmitter {
     this.sub = new Redis(options)
     this.sub.subscribe().catchReturn()
     this.sub.on('messageBuffer', this._onMessage.bind(this))
+    this.sub.on('error', this.emit.bind(this))
+    this.pub.on('error', this.emit.bind(this))
   }
 
   _onMessage (buf, data) {
@@ -117,7 +128,11 @@ class MemoryConnector extends EventEmitter {
  * first argument.
  * @property {Connector} [connector] Custom connector implementation.
  */
-class EmitterPubsubBroker {
+
+/**
+ * @extends EventEmitter
+ */
+class EmitterPubsubBroker extends EventEmitter {
   /**
    * Creates a broker.
    *
@@ -126,6 +141,7 @@ class EmitterPubsubBroker {
    * in-memory connector is used.
    */
   constructor (options) {
+    super()
     if (typeof options === 'string') {
       options = { connect: options }
     }
@@ -141,6 +157,14 @@ class EmitterPubsubBroker {
       this.serialize = false
     }
     this.connector.on('message', this._dispatch.bind(this))
+    /**
+     * Connector error. Does not throw if there are no listeners.
+     *
+     * @event error
+     * @memberOf EmitterPubsubBroker
+     * @param {Error} error Error.
+     */
+    this.connector.on('error', this.emit.bind(this))
   }
 
   _channelAddClient (client, ch) {
