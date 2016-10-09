@@ -46,7 +46,7 @@ broker.subscribe(client, 'my-channel')
 
 ## API
 
-[API](https://an-sh.github.io/emitter-pubsub-broker/0.1/index.html)
+[API](https://an-sh.github.io/emitter-pubsub-broker/0.2/index.html)
 documentation is available online.
 
 
