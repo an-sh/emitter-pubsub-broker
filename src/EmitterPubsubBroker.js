@@ -142,7 +142,7 @@ class EmitterPubsubBroker extends EventEmitter {
    */
   constructor (options) {
     super()
-    if (typeof options === 'string') {
+    if (options == null || typeof options === 'string') {
       options = { connect: options }
     }
     this.prefix = options.prefix || 'emitter-pubsub-broker:'
