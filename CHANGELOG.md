@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/an-sh/emitter-pubsub-broker/compare/v0.2.1...v0.3.0) (2016-10-21)
+
+
+### Code Refactoring
+
+* drop node 0.12 support/tests ([b8e1f4d](https://github.com/an-sh/emitter-pubsub-broker/commit/b8e1f4d))
+
+
+### BREAKING CHANGES
+
+* Node.js minimum version now is 4.x
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/an-sh/emitter-pubsub-broker/compare/v0.2.0...v0.2.1) (2016-10-12)
 
