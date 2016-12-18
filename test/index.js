@@ -82,16 +82,18 @@ describe('emitter-pubsub-broker', function () {
         .then(() => {
           broker.send(client1, 'my-channel', 'myEvent', 'arg')
           eventToPromise(client1, 'myEvent').then(notReachable)
-          return Promise.all([eventToPromise(client2, 'myEvent'),
-                              new Promise(resolve => setTimeout(resolve, 1000))])
+          return Promise.all([
+            eventToPromise(client2, 'myEvent'),
+            new Promise(resolve => setTimeout(resolve, 1000))])
         })
     })
 
     it('should get all subscriptions', function () {
       broker = new EmitterPubsubBroker(connect)
       let client1 = new EventEmitter()
-      return Promise.all([broker.subscribe(client1, 'my-channel'),
-                          broker.subscribe(client1, 'channel')])
+      return Promise.all([
+        broker.subscribe(client1, 'my-channel'),
+        broker.subscribe(client1, 'channel')])
         .then(() => {
           let subs = broker.getSubscriptions(client1)
           expect(subs).lengthOf(2)
@@ -105,8 +107,9 @@ describe('emitter-pubsub-broker', function () {
       this.slow(2000)
       broker = new EmitterPubsubBroker(connect)
       let client1 = new EventEmitter()
-      return Promise.all([broker.subscribe(client1, 'my-channel'),
-                          broker.subscribe(client1, 'channel')])
+      return Promise.all([
+        broker.subscribe(client1, 'my-channel'),
+        broker.subscribe(client1, 'channel')])
         .then(() => broker.unsubscribeall(client1))
         .then(() => {
           expect(broker.getSubscriptions(client1)).empty
