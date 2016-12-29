@@ -42,6 +42,21 @@ describe('emitter-pubsub-broker', function () {
       })
     })
 
+    it('should emit published encoded messages', function (done) {
+      broker = new EmitterPubsubBroker({connect, encoder: JSON.stringify, method: 'send'})
+      let client = new EventEmitter()
+      client.send = function (args) {
+        let [ev, x, y] = JSON.parse(args)
+        expect(ev).equal('myEvent')
+        expect(x).equal(1)
+        expect(y).equal('2')
+        done()
+      }
+      broker.subscribe(client, 'my-channel').then(() => {
+        broker.publish('my-channel', 'myEvent', 1, '2')
+      })
+    })
+
     it('should prepend a channel argument', function () {
       broker = new EmitterPubsubBroker({connect, includeChannel: true})
       let client = new EventEmitter()

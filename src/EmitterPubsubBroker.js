@@ -120,12 +120,22 @@ class MemoryConnector extends EventEmitter {
 }
 
 /**
+ * Messages encoder.
+ *
+ * @callback Encoder
+ * @param {*} args Emit arguments.
+ * @return {Object} Data to send.
+ */
+
+/**
  * @typedef {Object} EmitterPubsubBroker.Options
  *
- * @property {string} connect Connect string.
- * @property {string} [prefix='emitter-pubsub-broker:'] Prefix.
+ * @property {string} [connect] Connect string for a connector.
+ * @property {string} [prefix='emitter-pubsub-broker:'] Prefix for a connector.
  * @property {boolean} [includeChannel=false] Include channel as the
  * first argument.
+ * @property {Encoder} [encoder] Optional encoder to run before broadcasting.
+ * @property {string} [method='emit'] An alternative emit method.
  * @property {Connector} [connector] Custom connector implementation.
  */
 
@@ -146,6 +156,8 @@ class EmitterPubsubBroker extends EventEmitter {
       options = { connect: options }
     }
     this.prefix = options.prefix || 'emitter-pubsub-broker:'
+    this.method = options.method || 'emit'
+    this.encoder = options.encoder
     this.includeChannel = options.includeChannel
     this.clientChannels = new Map()
     this.channelClients = new Map()
@@ -321,9 +333,14 @@ class EmitterPubsubBroker extends EventEmitter {
       } else {
         args = [message.name, ...message.args]
       }
+      let data
+      if (this.encoder) {
+        data = this.encoder(args)
+      }
+      const method = this.method
       for (let client of clients) {
         if (!message.sender || client.id !== message.sender) {
-          client.emit(...args)
+          this.encoder ? client[method](data) : client[method](...args)
         }
       }
     }
