@@ -120,7 +120,8 @@ class MemoryConnector extends EventEmitter {
 }
 
 /**
- * Messages encoder.
+ * Messages encoder. May also return promises for an asynchronous
+ * execution.
  *
  * @callback Encoder
  * @param {*} args Emit arguments.
@@ -327,22 +328,18 @@ class EmitterPubsubBroker extends EventEmitter {
     let clients = this.channelClients.get(ch)
     /* istanbul ignore else */
     if (clients) {
-      let args
-      if (this.includeChannel) {
-        args = [message.name, channel, ...message.args]
-      } else {
-        args = [message.name, ...message.args]
-      }
-      let data
-      if (this.encoder) {
-        data = this.encoder(args)
-      }
-      const method = this.method
-      for (let client of clients) {
-        if (!message.sender || client.id !== message.sender) {
-          this.encoder ? client[method](data) : client[method](...args)
+      let args = this.includeChannel
+          ? [message.name, channel, ...message.args]
+          : [message.name, ...message.args]
+      Promise.try(() => this.encoder ? this.encoder(args) : args).then(data => {
+        const method = this.method
+        const sender = message.sender
+        for (let client of clients) {
+          if (!sender || client.id !== sender) {
+            this.encoder ? client[method](data) : client[method](...data)
+          }
         }
-      }
+      })
     }
   }
 
