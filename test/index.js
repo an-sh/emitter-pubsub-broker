@@ -3,6 +3,8 @@
 
 const EmitterPubsubBroker = require('../index.js')
 const eventToPromise = require('event-to-promise')
+const msgpack = require('msgpack-lite')
+const Promise = require('bluebird')
 const { expect } = require('chai')
 const { EventEmitter } = require('events')
 
@@ -54,6 +56,21 @@ describe('emitter-pubsub-broker', function () {
       }
       broker.subscribe(client, 'my-channel').then(() => {
         broker.publish('my-channel', 'myEvent', 1, '2')
+      })
+    })
+
+    it('should use custom serialisation', function () {
+      let serialize = (data) => Promise.try(() => msgpack.encode(data))
+      let deserialize = (data) => Promise.try(() => msgpack.decode(data))
+      broker = new EmitterPubsubBroker({connect, serialize, deserialize})
+      let client = new EventEmitter()
+      return broker.subscribe(client, 'my-channel').then(() => {
+        broker.publish('my-channel', 'myEvent', 1, '2')
+        return eventToPromise(client, 'myEvent', {array: true}).then(args => {
+          let [x, y] = args
+          expect(x).equal(1)
+          expect(y).equal('2')
+        })
       })
     })
 

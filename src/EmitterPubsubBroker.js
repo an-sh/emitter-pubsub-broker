@@ -120,12 +120,33 @@ class MemoryConnector extends EventEmitter {
 }
 
 /**
- * Messages encoder. May also return promises for an asynchronous
+ * Messages encoder. Encoded messages will be used to emit messages
+ * via event emitters. May also return promises for an asynchronous
  * execution.
  *
- * @callback Encoder
+ * @callback EmitterPubsubBroker.Encoder
  * @param {*} args Emit arguments.
- * @return {Object} Data to send.
+ * @return {Promise<Object>|Object} Data to send.
+ */
+
+/**
+ * Messages serialisation. Serialised messages will be used internally
+ * via a communication {@link Connector}.  May also return promises
+ * for an asynchronous execution.
+ *
+ * @callback EmitterPubsubBroker.Serialize
+ * @param {Object} data Data.
+ * @return {Promise<Object>|Object} Serialised data.
+ */
+
+/**
+ * Messages deserialisation. Serialised messages will be used
+ * internally via a communication {@link Connector}.  May also return
+ * promises for an asynchronous execution.
+ *
+ * @callback EmitterPubsubBroker.Deserialize
+ * @param {Object} data Serialised data.
+ * @return {Promise<Object>|Object} Data.
  */
 
 /**
@@ -135,8 +156,15 @@ class MemoryConnector extends EventEmitter {
  * @property {string} [prefix='emitter-pubsub-broker:'] Prefix for a connector.
  * @property {boolean} [includeChannel=false] Include channel as the
  * first argument.
- * @property {Encoder} [encoder] Optional encoder to run before broadcasting.
+ * @property {EmitterPubsubBroker.Encoder} [encoder] Optional encoder
+ * to run before broadcasting.
  * @property {string} [method='emit'] An alternative emit method.
+ * @property {EmitterPubsubBroker.Serialize}
+ * [serialize=msgpack.encode] Serialisation function to use with a
+ * connector.
+ * @property {EmitterPubsubBroker.Deserialize}
+ * [deserialize=msgpack.decode] Deserialisation function to use with a
+ * connector.
  * @property {Connector} [connector] Custom connector implementation.
  */
 
@@ -158,16 +186,18 @@ class EmitterPubsubBroker extends EventEmitter {
     }
     this.prefix = options.prefix || 'emitter-pubsub-broker:'
     this.method = options.method || 'emit'
+    this.serialize = options.serialize || msgpack.encode
+    this.deserialize = options.deserialize || msgpack.decode
     this.encoder = options.encoder
     this.includeChannel = options.includeChannel
     this.clientChannels = new Map()
     this.channelClients = new Map()
     if (options.connect || options.connector) {
       this.connector = options.connector || new RedisConnector(options.connect)
-      this.serialize = true
+      this.useSerialization = true
     } else {
       this.connector = new MemoryConnector()
-      this.serialize = false
+      this.useSerialization = false
     }
     this.connector.on('message', this._dispatch.bind(this))
     /**
@@ -208,7 +238,11 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
   _makeMessage (msg) {
-    return this.serialize ? msgpack.encode(msg) : msg
+    return Promise.try(() => this.useSerialization ? this.serialize(msg) : msg)
+  }
+
+  _unpackMessage (data) {
+    return Promise.try(() => this.useSerialization ? this.deserialize(data) : data)
   }
 
   /**
@@ -272,8 +306,8 @@ class EmitterPubsubBroker extends EventEmitter {
    */
   publish (channel, name, ...args) {
     let ch = this.prefix + channel
-    let msg = this._makeMessage({name, args})
-    return this.connector.publish(ch, msg)
+    return this._makeMessage({name, args})
+      .then(msg => this.connector.publish(ch, msg))
   }
 
   /**
@@ -289,8 +323,8 @@ class EmitterPubsubBroker extends EventEmitter {
   send (client, channel, name, ...args) {
     let ch = this.prefix + channel
     let sender = client.id
-    let msg = this._makeMessage({sender, name, args})
-    return this.connector.publish(ch, msg)
+    return this._makeMessage({sender, name, args})
+      .then(msg => this.connector.publish(ch, msg))
   }
 
   /**
@@ -323,27 +357,28 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
   _dispatch (ch, data) {
-    let channel = ch.slice(this.prefix.length)
-    let message = this.serialize ? msgpack.decode(data) : data
-    let clients = this.channelClients.get(ch)
-    /* istanbul ignore else */
-    if (clients) {
-      let args = this.includeChannel
+    this._unpackMessage(data).then(message => {
+      let channel = ch.slice(this.prefix.length)
+      let clients = this.channelClients.get(ch)
+      /* istanbul ignore else */
+      if (clients) {
+        let args = this.includeChannel
           ? [message.name, channel, ...message.args]
           : [message.name, ...message.args]
-      Promise.try(() => this.encoder ? this.encoder(args) : args).then(data => {
-        const method = this.method
-        const encoder = this.encoder
-        const sender = message.sender
-        clients.forEach(client => {
-          if (!sender || client.id !== sender) {
-            Promise
-              .try(() => encoder ? client[method](data) : client[method](...data))
-              .catchReturn()
-          }
+        Promise.try(() => this.encoder ? this.encoder(args) : args).then(data => {
+          const method = this.method
+          const encoder = this.encoder
+          const sender = message.sender
+          clients.forEach(client => {
+            if (!sender || client.id !== sender) {
+              Promise
+                .try(() => encoder ? client[method](data) : client[method](...data))
+                .catchReturn()
+            }
+          })
         })
-      })
-    }
+      }
+    })
   }
 
 }
