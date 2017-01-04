@@ -333,12 +333,15 @@ class EmitterPubsubBroker extends EventEmitter {
           : [message.name, ...message.args]
       Promise.try(() => this.encoder ? this.encoder(args) : args).then(data => {
         const method = this.method
+        const encoder = this.encoder
         const sender = message.sender
-        for (let client of clients) {
+        clients.forEach(client => {
           if (!sender || client.id !== sender) {
-            this.encoder ? client[method](data) : client[method](...data)
+            Promise
+              .try(() => encoder ? client[method](data) : client[method](...data))
+              .catchReturn()
           }
-        }
+        })
       })
     }
   }
