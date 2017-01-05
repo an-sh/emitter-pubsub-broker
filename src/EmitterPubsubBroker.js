@@ -328,19 +328,19 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
   /**
-   * Returns client subscriptions.
+   * Returns set of client subscriptions. The result __MUST NOT__ be
+   * modified.
    *
    * @param {EventEmitter} client Emitter.
-   * @return {Array<string>}
+   * @return {Set<string>|undefined}
    */
   getSubscriptions (client) {
-    let channels = this.clientChannels.get(client)
-    return channels ? [...channels] : []
+    return this.clientChannels.get(client)
   }
 
   /**
    * Returns _internal_ set of channel clients of EmitterPubsubBroker
-   * instance. The result must not be modified.
+   * instance. The result __MUST NOT__ be modified.
    *
    * @param {string} channel Channel.
    * @return {Set<EventEmitter>|undefined}

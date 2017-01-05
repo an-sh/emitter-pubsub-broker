@@ -128,9 +128,9 @@ describe('emitter-pubsub-broker', function () {
         broker.subscribe(client1, 'channel')])
         .then(() => {
           let subs = broker.getSubscriptions(client1)
-          expect(subs).lengthOf(2)
-          expect(subs).include('my-channel')
-          expect(subs).include('channel')
+          expect(subs.size).equal(2)
+          expect(subs.has('my-channel')).true
+          expect(subs.has('channel')).true
         })
     })
 
