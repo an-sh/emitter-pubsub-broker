@@ -142,7 +142,7 @@ describe('emitter-pubsub-broker', function () {
       return Promise.all([
         broker.subscribe(client1, 'my-channel'),
         broker.subscribe(client1, 'channel')])
-        .then(() => broker.unsubscribeall(client1))
+        .then(() => broker.unsubscribeAll(client1))
         .then(() => {
           expect(broker.getSubscriptions(client1)).empty
           eventToPromise(client1, 'myEvent').then(notReachable)
@@ -157,10 +157,10 @@ describe('emitter-pubsub-broker', function () {
       return broker.unsubscribe(client1, 'my-channel')
     })
 
-    it('should handle non-existent unsubscribeall', function () {
+    it('should handle non-existent unsubscribeAll', function () {
       broker = new EmitterPubsubBroker(connect)
       let client1 = new EventEmitter()
-      return broker.unsubscribeall(client1)
+      return broker.unsubscribeAll(client1)
     })
   }))
 })

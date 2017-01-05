@@ -280,12 +280,12 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
   /**
-   * Unsubscribes emitter from all channel.
+   * Unsubscribes emitter from all channels.
    *
    * @param {EventEmitter} client Emitter.
    * @return {Promise<undefined>}
    */
-  unsubscribeall (client) {
+  unsubscribeAll (client) {
     let channels = this.clientChannels.get(client)
     this.clientChannels.delete(client)
     if (channels) {
@@ -382,5 +382,8 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
 }
+
+// compatibility
+EmitterPubsubBroker.prototype.unsubscribeall = EmitterPubsubBroker.prototype.unsubscribeAll
 
 module.exports = EmitterPubsubBroker
