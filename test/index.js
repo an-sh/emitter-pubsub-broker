@@ -134,6 +134,21 @@ describe('emitter-pubsub-broker', function () {
         })
     })
 
+    it('should get clients set', function () {
+      broker = new EmitterPubsubBroker(connect)
+      let client1 = new EventEmitter()
+      let client2 = new EventEmitter()
+      return Promise.all([
+        broker.subscribe(client1, 'channel'),
+        broker.subscribe(client2, 'channel')])
+        .then(() => {
+          let subs = broker.getClients('channel')
+          expect(subs.size).equal(2)
+          expect(subs.has(client1)).true
+          expect(subs.has(client2)).true
+        })
+    })
+
     it('should unsubscribe all', function () {
       this.timeout(4000)
       this.slow(2000)

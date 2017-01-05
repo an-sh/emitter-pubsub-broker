@@ -343,6 +343,15 @@ class EmitterPubsubBroker extends EventEmitter {
       }
     }
     return res
+  /**
+   * Returns _internal_ set of channel clients of EmitterPubsubBroker
+   * instance. The result must not be modified.
+   *
+   * @param {string} channel Channel.
+   * @return {Set<EventEmitter>|undefined}
+   */
+  getClients (channel) {
+    return this.channelClients.get(channel)
   }
 
   /**
