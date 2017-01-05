@@ -210,12 +210,13 @@ class EmitterPubsubBroker extends EventEmitter {
     this.connector.on('error', this.emit.bind(this))
   }
 
-  _channelAddClient (client, ch) {
-    let clients = this.channelClients.get(ch)
+  _channelAddClient (client, channel) {
+    let clients = this.channelClients.get(channel)
     if (clients == null) {
       clients = new Set()
-      this.channelClients.set(ch, clients)
+      this.channelClients.set(channel, clients)
       clients.add(client)
+      let ch = this.prefix + channel
       return this.connector.subscribe(ch)
     } else {
       clients.add(client)
@@ -223,14 +224,15 @@ class EmitterPubsubBroker extends EventEmitter {
     }
   }
 
-  _channelRemoveClient (client, ch) {
-    let clients = this.channelClients.get(ch)
+  _channelRemoveClient (client, channel) {
+    let clients = this.channelClients.get(channel)
     let nclients
     if (clients != null) {
       clients.delete(client)
       nclients = clients.size
     }
     if (nclients === 0) {
+      let ch = this.prefix + channel
       return this.connector.unsubscribe(ch)
     } else {
       return Promise.resolve()
@@ -258,9 +260,8 @@ class EmitterPubsubBroker extends EventEmitter {
       channels = new Set()
       this.clientChannels.set(client, channels)
     }
-    let ch = this.prefix + channel
-    channels.add(ch)
-    return this._channelAddClient(client, ch)
+    channels.add(channel)
+    return this._channelAddClient(client, channel)
   }
 
   /**
@@ -272,11 +273,10 @@ class EmitterPubsubBroker extends EventEmitter {
    */
   unsubscribe (client, channel) {
     let channels = this.clientChannels.get(client)
-    let ch = this.prefix + channel
     if (channels) {
-      channels.delete(ch)
+      channels.delete(channel)
     }
-    return this._channelRemoveClient(client, ch)
+    return this._channelRemoveClient(client, channel)
   }
 
   /**
@@ -335,14 +335,9 @@ class EmitterPubsubBroker extends EventEmitter {
    */
   getSubscriptions (client) {
     let channels = this.clientChannels.get(client)
-    let res = []
-    if (channels) {
-      let plen = this.prefix.length
-      for (let channel of channels) {
-        res.push(channel.slice(plen))
-      }
-    }
-    return res
+    return channels ? [...channels] : []
+  }
+
   /**
    * Returns _internal_ set of channel clients of EmitterPubsubBroker
    * instance. The result must not be modified.
@@ -368,7 +363,7 @@ class EmitterPubsubBroker extends EventEmitter {
   _dispatch (ch, data) {
     this._unpackMessage(data).then(message => {
       let channel = ch.slice(this.prefix.length)
-      let clients = this.channelClients.get(ch)
+      let clients = this.channelClients.get(channel)
       /* istanbul ignore else */
       if (clients) {
         let args = this.includeChannel
