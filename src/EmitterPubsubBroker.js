@@ -384,7 +384,6 @@ class EmitterPubsubBroker extends EventEmitter {
       }
     })
   }
-
 }
 
 // compatibility

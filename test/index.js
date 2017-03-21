@@ -1,5 +1,6 @@
 'use strict'
 /* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
 
 const EmitterPubsubBroker = require('../index.js')
 const eventToPromise = require('event-to-promise')
