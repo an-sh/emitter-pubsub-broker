@@ -8,7 +8,7 @@
     "compile": "babel src --out-dir lib",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "generate-docs": "jsdoc --configure .jsdoc.json --verbose",
-    "prepublish": "npm run compile",
+    "prepare": "npm run compile",
     "pretest": "npm run compile",
     "test": "nyc mocha"
   },
@@ -33,22 +33,22 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.3.5",
-    "eventemitter3": "^2.0.2",
-    "ioredis": "^2.4.0",
+    "eventemitter3": "^3.0.0",
+    "ioredis": "^3.2.2",
     "msgpack-lite": "^0.1.20",
     "semver": "^5.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.11.4",
     "babel-preset-es2015-node4": "^2.1.0",
-    "chai": "^3.5.0",
-    "codecov": "^1.0.1",
+    "chai": "^4.1.2",
+    "codecov": "^3.0.0",
     "docdash": "^0.4.0",
-    "event-to-promise": "^0.7.0",
+    "event-to-promise": "^0.8.0",
     "jsdoc": "^3.4.0",
-    "mocha": "^3.0.0",
-    "nyc": "^10.0.0",
-    "standard": "^8.0.0"
+    "mocha": "^4.1.0",
+    "nyc": "^11.4.1",
+    "standard": "^10.0.3"
   },
   "nyc": {
     "include": [

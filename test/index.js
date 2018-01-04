@@ -10,7 +10,7 @@ const { expect } = require('chai')
 const { EventEmitter } = require('events')
 
 const configs = [ { name: 'memory', connect: '' },
-                  { name: 'redis', connect: 'redis://localhost:6379' } ]
+  { name: 'redis', connect: 'redis://localhost:6379' } ]
 
 let broker
 
@@ -160,7 +160,7 @@ describe('emitter-pubsub-broker', function () {
         broker.subscribe(client1, 'channel')])
         .then(() => broker.unsubscribeAll(client1))
         .then(() => {
-          expect(broker.getSubscriptions(client1)).empty
+          expect(broker.getSubscriptions(client1)).undefined
           eventToPromise(client1, 'myEvent').then(notReachable)
           broker.send(client1, 'my-channel', 'myEvent', 'arg')
           return new Promise(resolve => setTimeout(resolve, 1000))
