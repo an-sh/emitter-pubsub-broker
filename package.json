@@ -1,6 +1,6 @@
 {
   "name": "emitter-pubsub-broker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "An utility for connecting EventEmitters via a pubsub.",
   "main": "index.js",

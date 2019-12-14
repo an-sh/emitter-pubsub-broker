@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/an-sh/emitter-pubsub-broker/compare/v0.5.0...v1.0.1) (2019-12-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Now only Node.js version 10 and later are supported
+
+* updates ([4e1e2f1](https://github.com/an-sh/emitter-pubsub-broker/commit/4e1e2f1ae4a9e73b7d048897e1ecf39a1bf5ac61))
 
 <a name="0.5.0"></a>
 # [0.5.0](https://github.com/an-sh/emitter-pubsub-broker/compare/v0.4.0...v0.5.0) (2017-01-06)
