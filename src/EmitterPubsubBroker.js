@@ -68,14 +68,14 @@ class RedisConnector extends EventEmitter {
     super()
     this.pub = new Redis(options)
     this.sub = new Redis(options)
-    this.sub.subscribe().catchReturn()
+    this.sub.subscribe().catch(() => {})
     this.sub.on('messageBuffer', this._onMessage.bind(this))
     this.sub.on('error', this.emit.bind(this))
     this.pub.on('error', this.emit.bind(this))
   }
 
   _onMessage (buf, data) {
-    let ch = buf.toString()
+    const ch = buf.toString()
     this.emit('message', ch, data)
   }
 
@@ -216,7 +216,7 @@ class EmitterPubsubBroker extends EventEmitter {
       clients = new Set()
       this.channelClients.set(channel, clients)
       clients.add(client)
-      let ch = this.prefix + channel
+      const ch = this.prefix + channel
       return this.connector.subscribe(ch)
     } else {
       clients.add(client)
@@ -225,14 +225,14 @@ class EmitterPubsubBroker extends EventEmitter {
   }
 
   _channelRemoveClient (client, channel) {
-    let clients = this.channelClients.get(channel)
+    const clients = this.channelClients.get(channel)
     let nclients
     if (clients != null) {
       clients.delete(client)
       nclients = clients.size
     }
     if (nclients === 0) {
-      let ch = this.prefix + channel
+      const ch = this.prefix + channel
       return this.connector.unsubscribe(ch)
     } else {
       return Promise.resolve()
@@ -272,7 +272,7 @@ class EmitterPubsubBroker extends EventEmitter {
    * @return {Promise<undefined>}
    */
   unsubscribe (client, channel) {
-    let channels = this.clientChannels.get(client)
+    const channels = this.clientChannels.get(client)
     if (channels) {
       channels.delete(channel)
     }
@@ -286,7 +286,7 @@ class EmitterPubsubBroker extends EventEmitter {
    * @return {Promise<undefined>}
    */
   unsubscribeAll (client) {
-    let channels = this.clientChannels.get(client)
+    const channels = this.clientChannels.get(client)
     this.clientChannels.delete(client)
     if (channels) {
       return Promise.each(
@@ -305,8 +305,8 @@ class EmitterPubsubBroker extends EventEmitter {
    * @return {Promise<undefined>}
    */
   publish (channel, name, ...args) {
-    let ch = this.prefix + channel
-    return this._makeMessage({name, args})
+    const ch = this.prefix + channel
+    return this._makeMessage({ name, args })
       .then(msg => this.connector.publish(ch, msg))
   }
 
@@ -321,9 +321,9 @@ class EmitterPubsubBroker extends EventEmitter {
    * @return {Promise<undefined>}
    */
   send (client, channel, name, ...args) {
-    let ch = this.prefix + channel
-    let sender = client.id
-    return this._makeMessage({sender, name, args})
+    const ch = this.prefix + channel
+    const sender = client.id
+    return this._makeMessage({ sender, name, args })
       .then(msg => this.connector.publish(ch, msg))
   }
 
@@ -362,11 +362,11 @@ class EmitterPubsubBroker extends EventEmitter {
 
   _dispatch (ch, data) {
     this._unpackMessage(data).then(message => {
-      let channel = ch.slice(this.prefix.length)
-      let clients = this.channelClients.get(channel)
+      const channel = ch.slice(this.prefix.length)
+      const clients = this.channelClients.get(channel)
       /* istanbul ignore else */
       if (clients) {
-        let args = this.includeChannel
+        const args = this.includeChannel
           ? [message.name, channel, ...message.args]
           : [message.name, ...message.args]
         Promise.try(() => this.encoder ? this.encoder(args) : args).then(data => {
